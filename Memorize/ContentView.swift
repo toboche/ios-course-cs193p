@@ -8,18 +8,21 @@
 import SwiftUI
 
 struct ContentView: View {
+    static let themeCountries = ["🇬🇧", "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "🇺🇸", "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "🇩🇰", "🇦🇪", "🇲🇲", "🇨🇮", "🇲🇦", "🇵🇳", "🇻🇪"]
+    static let themeTransport = ["✈️",
+                          "🚙",
+                          "🚂",
+                          "🚴",
+                          "🚀",
+                            "🚍",
+                            "🛥️",
+                            "🛩️",
+                            "🚔",
+            "🚁",
+            "⛵️"]
+    static let themeAnimals = ["🐱", "🐩", "🦔", "🐼", "🐄", "🙈", "🐇", "🐖", "🦬"]
     
-    var emojis = ["✈️",
-                  "🚙",
-                  "🚂",
-                  "🚴",
-                  "🚀",
-                    "🚍",
-                    "🛥️",
-                    "🛩️",
-                    "🚔",
-    "🚁",
-    "⛵️"]
+    @State var emojis = themeCountries
     
     @State var emojiCount = 4
     
@@ -37,6 +40,11 @@ struct ContentView: View {
             }
             .foregroundColor(.red)
             Spacer()
+            HStack{
+                themeButton(themeName: "countries",themeEmojis: ContentView.themeCountries)
+                themeButton(themeName: "transport",themeEmojis:  ContentView.themeTransport)
+                themeButton(themeName: "animals", themeEmojis: ContentView.themeAnimals)
+            }
             HStack{
                 remove
                 Spacer()
@@ -63,6 +71,14 @@ struct ContentView: View {
             }
         } label: {
             Image(systemName: "plus.circle")
+        }
+    }
+    func themeButton(themeName: String, themeEmojis: Array<String>) -> some View{
+        return Button{
+            emojiCount = 4
+            emojis = themeEmojis
+        } label: {
+            Text(themeName)
         }
     }
 }
