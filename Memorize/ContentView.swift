@@ -83,7 +83,7 @@ struct ContentView: View {
     }
     func themeButton(themeName: String, themeEmojis: Array<String>, imageId: String, color: Color) -> some View {
         return Button{
-            emojiCount = 4
+            emojiCount = Int.random(in: 4...6)
             emojis = generateCards(chars: themeEmojis)
             themeColor = color
         } label: {
