@@ -22,9 +22,17 @@ struct ContentView: View {
             "⛵️"]
     static let themeAnimals = ["🐱", "🐩", "🦔", "🐼", "🐄", "🙈", "🐇", "🐖", "🦬"]
     
-    @State var emojis = themeCountries
-    
+    @State var emojis = generateCards(chars: themeCountries)
+    @State var themeColor = Color.red
+        
     @State var emojiCount = 4
+    
+    struct Card: Hashable {
+        var id = UUID()
+        var isFirst: Bool
+        var char: String
+        var isFaceUp: Bool
+    }
     
     var body: some View {
         VStack {
@@ -32,18 +40,18 @@ struct ContentView: View {
                 .font(.largeTitle)
             ScrollView {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 65))]) {
-                    ForEach(emojis[0..<emojiCount], id: \.self) {emoji in
-                        CardView(content: emoji)
+                    ForEach(emojis[0..<emojiCount*2], id: \.self) {card in
+                        CardView(content: card)
                             .aspectRatio(2/3, contentMode: .fit)
                     }
                 }
             }
-            .foregroundColor(.red)
+            .foregroundColor(themeColor)
             Spacer()
             HStack{
-                themeButton(themeName: "countries",themeEmojis: ContentView.themeCountries)
-                themeButton(themeName: "transport",themeEmojis:  ContentView.themeTransport)
-                themeButton(themeName: "animals", themeEmojis: ContentView.themeAnimals)
+                themeButton(themeName: "countries",themeEmojis: ContentView.themeCountries, imageId:  "flag", color: .red)
+                themeButton(themeName: "transport",themeEmojis:  ContentView.themeTransport, imageId:  "car", color: .green)
+                themeButton(themeName: "animals", themeEmojis: ContentView.themeAnimals, imageId:  "dog", color: .brown)
             }
             HStack{
                 remove
@@ -57,7 +65,7 @@ struct ContentView: View {
     }
     var remove: some View {
         Button{
-            if(emojiCount > 1){
+            if(emojiCount > 3){
                 emojiCount -= 1
             }
         } label: {
@@ -66,39 +74,62 @@ struct ContentView: View {
     }
     var add: some View {
         Button {
-            if(emojiCount < emojis.count ){
+            if(emojiCount*2 < emojis.count ){
                 emojiCount += 1
             }
         } label: {
             Image(systemName: "plus.circle")
         }
     }
-    func themeButton(themeName: String, themeEmojis: Array<String>) -> some View{
+    func themeButton(themeName: String, themeEmojis: Array<String>, imageId: String, color: Color) -> some View {
         return Button{
             emojiCount = 4
-            emojis = themeEmojis
+            emojis = generateCards(chars: themeEmojis)
+            themeColor = color
         } label: {
-            Text(themeName)
+            VStack {
+                Image(systemName: imageId)
+                Text(themeName)
+                    .font(.caption)
+            }
         }
     }
 }
 
+func generateCards(chars: Array<String>) -> Array<ContentView.Card>{
+    return chars
+        .flatMap({
+            return [
+                    ContentView.Card(
+                    isFirst: true,
+                    char: $0,
+                    isFaceUp: false),
+                    ContentView.Card(
+                        isFirst: false,
+                        char: $0,
+                        isFaceUp: false
+                    )
+            ]
+        }
+    )
+        .shuffled()
+}
+
 struct CardView: View {
     
-    @State var isFaceUp: Bool = true
-    var content: String
+    @State var content: ContentView.Card
     
     var body: some View {
         ZStack{
             let shape = RoundedRectangle(cornerRadius: 20.0)
-            if isFaceUp {
+            if content.isFaceUp {
                 shape
                     .fill()
                     .foregroundColor(.white)
                 shape
                     .strokeBorder(lineWidth: 3)
                 
-                Text(content)
+                Text(content.char)
                     .font(.largeTitle)
                 
             } else {
@@ -107,12 +138,9 @@ struct CardView: View {
             }
         }
         .onTapGesture {
-            isFaceUp = !isFaceUp
+            content.isFaceUp = !content.isFaceUp
         }
-        
     }
-    
-    
 }
 
 #Preview {
